@@ -8,7 +8,7 @@
    Запуск:  mongosh "mongodb://localhost:27017" 01-create-collections.js
    -----------------------------------------------------------------------------
    Моделювання зв'язків:
-     embedding   — reviews.author, reviews.comments[], watchlists.items[]
+     embedding   — reviews.reviewer, reviews.comments[], watchlists.items[]
      referencing — reviews.discussionId -> discussions._id
      гібрид      — reviews: кілька останніх коментарів ВБУДОВАНО, а довга
                    дискусія винесена в окрему колекцію ЗА ПОСИЛАННЯМ
@@ -36,13 +36,13 @@ print("=== VideoRentalReviewsDb: створення колекцій ===");
    1. reviews — відгуки на фільми.
       Головна колекція, що поєднує ВСІ прийоми моделювання.
       JSON Schema Validation контролює лише ОБОВ'ЯЗКОВЕ ядро документа
-      (movieId, rating, author) — решта полів вільна, що й дає гнучку схему.
+      (movieId, rating, reviewer) — решта полів вільна, що й дає гнучку схему.
    ============================================================================= */
 db.createCollection("reviews", {
     validator: {
         $jsonSchema: {
             bsonType: "object",
-            required: ["movieId", "rating", "author", "createdAt"],
+            required: ["movieId", "rating", "reviewer", "createdAt"],
             properties: {
                 movieId: {
                     bsonType: ["long", "int"],
@@ -58,23 +58,32 @@ db.createCollection("reviews", {
                     maximum: 5,
                     description: "оцінка від 1 до 5"
                 },
-                author: {
+                reviewer: {
                     bsonType: "object",
                     required: ["displayName"],
                     properties: {
                         customerId:    { bsonType: ["long", "int", "null"] },
                         displayName: { bsonType: "string" }
                     },
-                    description: "ВБУДОВАНИЙ об'єкт — режисер відгуку"
+                    description: "ВБУДОВАНИЙ об'єкт — автор відгуку"
                 },
                 comments: {
                     bsonType: "array",
                     description: "ВБУДОВАНИЙ масив — кілька останніх коментарів",
                     items: {
                         bsonType: "object",
-                        required: ["author", "text"],
+                        required: ["reviewer", "text"],
                         properties: {
-                            author:    { bsonType: "string" },
+                            // автор коментаря — такий самий вбудований об'єкт,
+                            // як і автор відгуку (див. Лаб. 04, Value Object Reviewer)
+                            reviewer: {
+                                bsonType: "object",
+                                required: ["displayName"],
+                                properties: {
+                                    customerId:    { bsonType: ["long", "int", "null"] },
+                                    displayName: { bsonType: "string" }
+                                }
+                            },
                             text:      { bsonType: "string" },
                             createdAt: { bsonType: "date" },
                             likes:     { bsonType: "int" }
@@ -85,7 +94,8 @@ db.createCollection("reviews", {
                     bsonType: ["objectId", "null"],
                     description: "ПОСИЛАННЯ на колекцію discussions (необмежено довга ветка)"
                 },
-                createdAt: { bsonType: "date" }
+                createdAt: { bsonType: "date" },
+                version:   { bsonType: "int", description: "оптимістична конкурентність (Лаб. 04)" }
             }
         }
     },
@@ -100,9 +110,9 @@ db.reviews.createIndex({ movieId: 1, createdAt: -1 }, { name: "ix_reviews_movie_
 db.reviews.createIndex({ movieId: 1, rating: -1 }, { name: "ix_reviews_movie_rating" });
 /* індекс під запит: «усі відгуки конкретного клієнта» — розріджений,
    бо customerId є не в усіх документах (анонімні відгуки) */
-db.reviews.createIndex({ "author.customerId": 1 }, { name: "ix_reviews_customer", sparse: true });
+db.reviews.createIndex({ "reviewer.customerId": 1 }, { name: "ix_reviews_customer", sparse: true });
 /* текстовий індекс під запит: «повнотекстовий пошук по відгуках» */
-db.reviews.createIndex({ text: "text", movieTitle: "text" }, { name: "ix_reviews_fulltext", default_language: "russian" });
+db.reviews.createIndex({ text: "text", movieTitle: "text" }, { name: "ix_reviews_fulltext", default_language: "none" });
 /* частковий індекс під запит: «відгуки з фото» (поле є лише в частини документів) */
 db.reviews.createIndex({ createdAt: -1 },
     { name: "ix_reviews_with_photos", partialFilterExpression: { photos: { $exists: true } } });
@@ -128,9 +138,16 @@ db.createCollection("discussions", {
                     bsonType: "array",
                     items: {
                         bsonType: "object",
-                        required: ["author", "text"],
+                        required: ["reviewer", "text"],
                         properties: {
-                            author:    { bsonType: "string" },
+                            reviewer: {
+                                bsonType: "object",
+                                required: ["displayName"],
+                                properties: {
+                                    customerId:    { bsonType: ["long", "int", "null"] },
+                                    displayName: { bsonType: "string" }
+                                }
+                            },
                             text:      { bsonType: "string" },
                             postedAt:  { bsonType: "date" },
                             replyTo:   { bsonType: ["int", "null"] }
@@ -184,7 +201,7 @@ db.createCollection("watchlists", {
                             movieTitle: { bsonType: "string" },
                             note:      { bsonType: "string" },
                             addedAt:   { bsonType: "date" },
-                            status:    { bsonType: "string", enum: ["planned", "watching", "finished", "dropped"] }
+                            status:    { bsonType: "string", enum: ["planned", "reading", "finished", "dropped"] }
                         }
                     }
                 },

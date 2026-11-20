@@ -477,7 +477,7 @@ graph TB
 |---|---|---|
 | `ix_reviews_movie_created` `{movieId:1, createdAt:-1}` | «усі відгуки на фільм, найновіші спочатку» | складений |
 | `ix_reviews_movie_rating` `{movieId:1, rating:-1}` | «середній рейтинг і розподіл оцінок» (aggregation) | складений |
-| `ix_reviews_customer` `{"author.customerId":1}` | «усі відгуки клієнта» | **sparse** — `customerId` є не в усіх документах (анонімні відгуки) |
+| `ix_reviews_customer` `{"reviewer.customerId":1}` | «усі відгуки клієнта» | **sparse** — `customerId` є не в усіх документах (анонімні відгуки) |
 | `ix_reviews_fulltext` `{text:"text", movieTitle:"text"}` | повнотекстовий пошук | text |
 | `ix_reviews_with_photos` `{createdAt:-1}` | «відгуки з фото» | **partial** `{photos:{$exists:true}}` |
 | `ix_discussions_movie_open` `{movieId:1, isClosed:1}` | «відкриті обговорення фільму» | складений |

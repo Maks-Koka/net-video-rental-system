@@ -1,0 +1,84 @@
+=== Часткова відмова: reviews-api зупинено ===
+GET http://localhost:5001/api/aggregator/rentals/1/full
+
+Платформа: http://localhost:5001
+
+[*] Часткова відмова: reviews-api має бути ЗУПИНЕНИЙ у Dashboard
+  OK   агрегувальний запит НЕ падає з 500
+  OK   оренда на місці
+  OK   фільми Каталогу на місці
+  OK   відгуків немає
+  OK   у warnings є причина
+       warning: reviews-api/ratings is unavailable: The operation didn't complete within the allowed timeout of '00:00:03'.
+       warning: reviews-api/reviews is unavailable: The operation didn't complete within the allowed timeout of '00:00:03'.
+  OK   meta позначила виклик як unavailable
+
+============================================================
+Пройдено: 6   Не пройдено: 0
+
+=== Фрагмент відповіді (HTTP 200) ===
+{
+  "movies": [
+    {
+      "id": 1,
+      "title": "Тіні забутих предків",
+      "barcode": "482-001-00-0001-5",
+      "dailyRate": 3.5,
+      "availableDiscs": 2,
+      "releaseYear": 1965,
+      "directorName": "Сергій Параджанов",
+      "genres": [
+        "Комедія",
+        "Класика"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Земля",
+      "barcode": "482-001-00-0002-3",
+      "dailyRate": 4.0,
+      "availableDiscs": 1,
+      "releaseYear": 1930,
+      "directorName": "Олександр Довженко",
+      "genres": [
+        "Історичний",
+        "Класика"
+      ]
+    }
+  ],
+  "reviews": [],
+  "warnings": [
+    "reviews-api/ratings is unavailable: The operation didn't complete within the allowed timeout of '00:00:03'.",
+    "reviews-api/reviews is unavailable: The operation didn't complete within the allowed timeout of '00:00:03'."
+  ],
+  "meta": {
+    "totalMs": 9522,
+    "sequentialMs": 18887,
+    "calls": [
+      {
+        "service": "catalog-api",
+        "status": "ok",
+        "elapsedMs": 19
+      },
+      {
+        "service": "rentals-api/customers",
+        "status": "ok",
+        "elapsedMs": 13
+      },
+      {
+        "service": "rentals-api/rentals",
+        "status": "ok",
+        "elapsedMs": 8
+      },
+      {
+        "service": "reviews-api/ratings",
+        "status": "unavailable",
+        "elapsedMs": 9345
+      },
+      {
+        "service": "reviews-api/reviews",
+        "status": "unavailable",
+        "elapsedMs": 9502
+      }
+    ],
+    "savedByParallelismMs": 

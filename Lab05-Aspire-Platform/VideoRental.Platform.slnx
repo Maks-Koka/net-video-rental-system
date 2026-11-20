@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VideoRental.Platform.AppHost/VideoRental.Platform.AppHost.csproj" />
+    <Project Path="src/VideoRental.Platform.ServiceDefaults/VideoRental.Platform.ServiceDefaults.csproj" />
+    <Project Path="src/VideoRental.Platform.ApiGateway/VideoRental.Platform.ApiGateway.csproj" />
+    <Project Path="src/VideoRental.Platform.Aggregator/VideoRental.Platform.Aggregator.csproj" />
+  </Folder>
+  <Folder Name="/services/">
+    <Project Path="../Lab02-AdoNet-Dapper/src/VideoRental.Rentals.Api/VideoRental.Rentals.Api.csproj" />
+    <Project Path="../Lab03-EfCore/src/VideoRental.Catalog.Api/VideoRental.Catalog.Api.csproj" />
+    <Project Path="../Lab04-CleanArchitecture-MongoDB/src/VideoRental.Reviews.WebApi/VideoRental.Reviews.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VideoRental.Platform.Tests/VideoRental.Platform.Tests.csproj" />
+  </Folder>
+</Solution>

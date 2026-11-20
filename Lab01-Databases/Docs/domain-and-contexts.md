@@ -80,7 +80,7 @@ VideoRentalCatalogDb.Movies.Id  (ВЛАСНИК ідентифікатора ф�
                    VideoRentalReviewsDb.watchlists.items[].movieId
 
 VideoRentalRentalsDb.Customers.Id  (ВЛАСНИК ідентифікатора клієнта)
-        └─ ─ ─ ►  VideoRentalReviewsDb.reviews.author.customerId
+        └─ ─ ─ ►  VideoRentalReviewsDb.reviews.reviewer.customerId
                    VideoRentalReviewsDb.customerProfiles.customerId
 ```
 
@@ -100,9 +100,9 @@ VideoRentalRentalsDb.Customers.Id  (ВЛАСНИК ідентифікатора 
 |---|---|---|---|---|
 | 1 | `RentalItems.MovieTitle`, `RentalItems.MovieDirector`, `RentalItems.DailyRate` | `VideoRentalRentalsDb` (Проєкт №1) | `Movies` у `VideoRentalCatalogDb` (Проєкт №2) | **Знімок на момент оформлення оренди — свідомо НЕ оновлюється.** Тариф і назва, за якими оформлено оренду, мають залишитися незмінними, навіть якщо каталог їх змінить. Так само `OrderItem` в eShop зберігає `ProductName` і `UnitPrice`. |
 | 2 | `Movies.Title`, `Movies.Director`, `Movies.Barcode`, `Movies.DailyRate` (локальна копія довідника) | `VideoRentalRentalsDb` (Проєкт №1) | `Movies` у `VideoRentalCatalogDb` (Проєкт №2) | **Копія для читання — оновлюється подіями з Каталогу** (`MovieUpdated`, `MoviePriceChanged`). Потрібна, щоб форма оформлення оренди не робила синхронний виклик до Каталогу на кожне читання. Механізм подій — Лаб. 08; до того копія синхронізується `seed`/скриптом (`MERGE` у `seed.sql`). |
-| 3 | `Movies.DiscsAvailable` | `VideoRentalRentalsDb` (Проєкт №1) | **Власник — Проєкт №1** (а не Каталог) | **Не дублювання, а власні дані контексту Оренди.** Залишок доступних для оренди дисків змінюють саме операції оренди/повернення, тому `seed.sql` його не перетирає (`MERGE ... WHEN MATCHED` оновлює все, крім цього поля). `Catalog.Movies.AvailableDiscs` — окреме поле з іншим змістом: скільки дисків узагалі є на балансі. |
+| 3 | `Movies.DiscsAvailable` | `VideoRentalRentalsDb` (Проєкт №1) | **Власник — Проєкт №1** (а не Каталог) | **Не дублювання, а власні дані контексту Оренди.** Залишок доступних для видачі дисків змінюють саме операції оренди/повернення, тому `seed.sql` його не перетирає (`MERGE ... WHEN MATCHED` оновлює все, крім цього поля). `Catalog.Movies.AvailableDiscs` — окреме поле з іншим змістом: скільки дисків узагалі є на балансі. |
 | 4 | `reviews.movieTitle`, `discussions.movieTitle`, `watchlists.items[].movieTitle` | `VideoRentalReviewsDb` (Проєкт №3) | `Movies` у `VideoRentalCatalogDb` (Проєкт №2) | **Копія для читання — оновлюється подіями з Каталогу.** Денормалізація дає змогу показати список відгуків без жодного звернення до Каталогу. |
-| 5 | `reviews.author.displayName`, `watchlists.owner.displayName`, `customerProfiles.displayName` | `VideoRentalReviewsDb` (Проєкт №3) | `Customers` у `VideoRentalRentalsDb` (Проєкт №1) | **Знімок імені на момент публікації — НЕ оновлюється.** Відгук підписаний тим іменем, під яким його опублікували. Відгук може бути й анонімним — тоді `customerId` відсутній узагалі. |
+| 5 | `reviews.reviewer.displayName`, `watchlists.owner.displayName`, `customerProfiles.displayName` | `VideoRentalReviewsDb` (Проєкт №3) | `Customers` у `VideoRentalRentalsDb` (Проєкт №1) | **Знімок імені на момент публікації — НЕ оновлюється.** Відгук підписаний тим іменем, під яким його опублікували. Відгук може бути й анонімним — тоді `customerId` відсутній узагалі. |
 | 6 | `RentalStatusHistory.ToStatus` | `VideoRentalRentalsDb` | **Власні дані контексту** | Не дублювання: журнал подій агрегату Rental. |
 
 ### Чому дублювання допустиме і що ми втрачаємо

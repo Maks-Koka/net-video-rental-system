@@ -151,7 +151,7 @@ docker exec netlabs-mongo mongosh "mongodb://localhost:27017" --quiet --file /tm
 | `Movies.Title`, `Director`, `Barcode`, `DailyRate` | `VideoRentalRentalsDb` | `Movies` у `VideoRentalCatalogDb` | копія для читання — **оновлюється подіями** з Каталогу |
 | `Movies.DiscsAvailable` | `VideoRentalRentalsDb` | **власні дані** контексту Оренди | змінюється операціями оренди/повернення |
 | `reviews.movieTitle`, `discussions.movieTitle`, `watchlists.items[].movieTitle` | `VideoRentalReviewsDb` | `Movies` у `VideoRentalCatalogDb` | копія для читання — **оновлюється подіями** з Каталогу |
-| `reviews.author.displayName`, `watchlists.owner.displayName` | `VideoRentalReviewsDb` | `Customers` у `VideoRentalRentalsDb` | **знімок** імені на момент публікації |
+| `reviews.reviewer.displayName`, `watchlists.owner.displayName` | `VideoRentalReviewsDb` | `Customers` у `VideoRentalRentalsDb` | **знімок** імені на момент публікації |
 
 Повна таблиця з обґрунтуванням — у [`Docs/domain-and-contexts.md`](Docs/domain-and-contexts.md).
 

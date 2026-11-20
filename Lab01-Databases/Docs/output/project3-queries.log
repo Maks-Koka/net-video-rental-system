@@ -3,30 +3,30 @@
  1. Гнучка схема: різні набори полів в колекції reviews
 =============================================================
   "Тіні забутих предків"
-      поля: _id, author, comments, createdAt, discussionId, movieId, movieTitle, rating, text
+      поля: _id, comments, createdAt, discussionId, movieId, movieTitle, rating, reviewer, text
   "Поводир"
-      поля: _id, author, comments, createdAt, discussionId, movieId, movieTitle, photos, rating, tags, text
+      поля: _id, comments, createdAt, discussionId, movieId, movieTitle, photos, rating, reviewer, tags, text
   "Земля"
-      поля: _id, author, createdAt, movieId, movieTitle, rating, text
+      поля: _id, createdAt, movieId, movieTitle, rating, reviewer, text
   "Кіборги"
-      поля: _id, author, comments, createdAt, movieId, movieTitle, rating, ratings, watchingContext
+      поля: _id, comments, createdAt, movieId, movieTitle, rating, ratings, readingContext, reviewer
   "Пропала грамота"
-      поля: _id, author, createdAt, movieId, movieTitle, rating
+      поля: _id, createdAt, movieId, movieTitle, rating, reviewer
 
   Повний перелік полів, що зустрічаються в колекції:
     _id                присутнє в 5 з 5 документів
-    author             присутнє в 5 з 5 документів
     createdAt          присутнє в 5 з 5 документів
     movieId            присутнє в 5 з 5 документів
     movieTitle         присутнє в 5 з 5 документів
     rating             присутнє в 5 з 5 документів
+    reviewer           присутнє в 5 з 5 документів
     comments           присутнє в 3 з 5 документів
     text               присутнє в 3 з 5 документів
     discussionId       присутнє в 2 з 5 документів
     photos             присутнє в 1 з 5 документів
     ratings            присутнє в 1 з 5 документів
+    readingContext     присутнє в 1 з 5 документів
     tags               присутнє в 1 з 5 документів
-    watchingContext    присутнє в 1 з 5 документів
 
 =============================================================
  1b. Гнучка схема в customerProfiles
@@ -36,21 +36,25 @@
   customerId=3  поля: _id, customerId, displayName
 
 =============================================================
- 2. Embedding: режисер і коментарі приходять разом із відгуком (1 запит)
+ 2. Embedding: автор і коментарі приходять разом із відгуком (1 запит)
 =============================================================
 {
   _id: ObjectId('66f0c20000000000000000b1'),
   movieTitle: 'Тіні забутих предків',
-  author: {
+  reviewer: {
     displayName: 'Олена К.'
   },
   comments: [
     {
-      author: 'Андрій',
+      reviewer: {
+        displayName: 'Андрій'
+      },
       text: 'Згоден, реставрація врятувала.'
     },
     {
-      author: 'Марія',
+      reviewer: {
+        displayName: 'Марія'
+      },
       text: 'А яка саме версія?'
     }
   ]
@@ -169,12 +173,12 @@
 }
 
 =============================================================
- 7b. $elemMatch: позиції підбірки зі статусом 'watching'
+ 7b. $elemMatch: позиції підбірки зі статусом 'reading'
 =============================================================
 {
   list: 'Український кінематограф на зиму',
   movie: 'Пропала грамота',
-  status: 'watching'
+  status: 'reading'
 }
 
 =============================================================
@@ -194,7 +198,7 @@
   OK  Валідатор відхилив документ. code=121 — Document failed validation
 
 =============================================================
- 9b. JSON Schema Validation: відсутнє обов'язкове поле author
+ 9b. JSON Schema Validation: відсутнє обов'язкове поле reviewer
 =============================================================
   OK  Валідатор відхилив документ. code=121 — Document failed validation
 
@@ -212,7 +216,7 @@
     _id_                       {"_id":1} 
     ix_reviews_movie_created   {"movieId":1,"createdAt":-1} 
     ix_reviews_movie_rating    {"movieId":1,"rating":-1} 
-    ix_reviews_customer        {"author.customerId":1} [sparse]
+    ix_reviews_customer        {"reviewer.customerId":1} [sparse]
     ix_reviews_fulltext        {"_fts":"text","_ftsx":1} 
     ix_reviews_with_photos     {"createdAt":-1} [partial]
 
