@@ -1,0 +1,15 @@
+Changed database context to 'VideoRentalRentalsDb'.
+VideoRentalRentalsDb: schema.sql виконано успішно.
+Changed database context to 'VideoRentalRentalsDb'.
+VideoRentalRentalsDb: procedures.sql виконано успішно (7 процедур).
+Changed database context to 'VideoRentalRentalsDb'.
+VideoRentalRentalsDb: seed.sql виконано успішно (повторний запуск дублікатів не створює).
+Table               Rows       
+------------------- -----------
+Customers                     4
+Movies                        6
+Rentals                       3
+RentalDetails                 3
+RentalItems                   5
+RentalStatusHistory           8
+LateFeePayments               1
