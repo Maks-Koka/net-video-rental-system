@@ -7,6 +7,7 @@ using VideoRental.Catalog.Bll.Services;
 using VideoRental.Catalog.Bll.Validators;
 using VideoRental.Catalog.Dal;
 using VideoRental.Catalog.Dal.Abstractions;
+using VideoRental.Platform.ServiceDefaults;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -21,16 +22,18 @@ var connectionString = builder.Configuration.GetConnectionString("CatalogDb")
     ?? throw new InvalidOperationException("Connection string 'CatalogDb' is missing");
 
 /* =============================================================================
-   2. Логування: Serilog зі структурованими логами.
-      Рівень Information для Microsoft.EntityFrameworkCore.Database.Command
-      вмикає показ SQL-запитів EF Core — саме так перевіряється, що
-      Eager Loading робить ОДИН запит, а Explicit Loading — ДВА.
+   2. Платформні налаштування (Лаб. 05).
+
+   Один рядок замінює власну конфігурацію логування: ServiceDefaults дає
+   Serilog зі структурованими логами, OpenTelemetry (трасування вхідних
+   запитів, вихідних HTTP-викликів і звернень до БД), health checks,
+   service discovery і стійкі HttpClient-и — однаково в усіх компонентах
+   платформи.
+
+   Поза платформою сервіс працює так само: рівні й sink-и логування
+   по-старому читаються з appsettings.json.
    ============================================================================= */
-builder.Host.UseSerilog((ctx, cfg) => cfg
-    .ReadFrom.Configuration(ctx.Configuration)
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Information)
-    .Enrich.FromLogContext()
-    .Enrich.WithProperty("Service", "VideoRental.Catalog.Api"));
+builder.AddServiceDefaults();
 
 /* =============================================================================
    3. EF Core: DbContext + Unit of Work.
@@ -149,7 +152,10 @@ if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
    8. Конвеєр обробки запитів.
    ============================================================================= */
 app.UseExceptionHandler();
-app.UseSerilogRequestLogging();
+// CorrelationId + логування запитів (ServiceDefaults): наскрізний
+// ідентифікатор потрапляє в LogContext, у заголовок відповіді та у вихідні
+// HTTP-виклики — так один запит видно в логах усіх сервісів ланцюжка
+app.UseServiceDefaults();
 
 app.UseSwagger();
 app.UseSwaggerUI(o =>
@@ -159,6 +165,11 @@ app.UseSwaggerUI(o =>
 });
 
 app.MapControllers();
+
+// /alive (живучість) і /health/ready (усі перевірки) від ServiceDefaults.
+// Власний /health нижче лишається: він перевіряє саме базу цього сервісу,
+// а двічі зареєстрований однаковий маршрут дав би AmbiguousMatchException.
+app.MapDefaultEndpoints("/health/ready");
 
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 

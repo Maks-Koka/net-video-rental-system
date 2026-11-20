@@ -36,10 +36,10 @@ db.customerProfiles.find().forEach((doc) => {
 /* =============================================================================
    2. EMBEDDING — вбудовані об'єкти та масиви читаються ОДНИМ запитом
    ============================================================================= */
-line("2. Embedding: режисер і коментарі приходять разом із відгуком (1 запит)");
+line("2. Embedding: автор і коментарі приходять разом із відгуком (1 запит)");
 printjson(db.reviews.findOne(
     { _id: ObjectId("66f0c20000000000000000b1") },
-    { movieTitle: 1, "author.displayName": 1, "comments.author": 1, "comments.text": 1 }
+    { movieTitle: 1, "reviewer.displayName": 1, "comments.reviewer": 1, "comments.text": 1 }
 ));
 
 /* =============================================================================
@@ -99,7 +99,7 @@ line("5. Aggregation + $unwind: топ коментаторів за лайка�
 db.reviews.aggregate([
     { $unwind: "$comments" },
     { $group: {
-        _id: "$comments.author",
+        _id: "$comments.reviewer",
         comments: { $sum: 1 },
         likes: { $sum: { $ifNull: ["$comments.likes", 0] } }
     } },
@@ -144,7 +144,7 @@ line("9. JSON Schema Validation: rating=9 має бути відхилено");
 try {
     db.reviews.insertOne({
         movieId: NumberLong("1"),
-        author: { displayName: "Порушник" },
+        reviewer: { displayName: "Порушник" },
         rating: NumberInt(9),                     // поза межами 1..5
         createdAt: new Date()
     });
@@ -153,10 +153,10 @@ try {
     print(`  OK  Валідатор відхилив документ. code=${e.code} — ${String(e.message).substring(0, 90)}`);
 }
 
-line("9b. JSON Schema Validation: відсутнє обов'язкове поле author");
+line("9b. JSON Schema Validation: відсутнє обов'язкове поле reviewer");
 try {
     db.reviews.insertOne({ movieId: NumberLong("1"), rating: NumberInt(4), createdAt: new Date() });
-    print("  !!! ПОМИЛКА ТЕСТУ: документ без author вставився");
+    print("  !!! ПОМИЛКА ТЕСТУ: документ без reviewer вставився");
 } catch (e) {
     print(`  OK  Валідатор відхилив документ. code=${e.code} — ${String(e.message).substring(0, 90)}`);
 }
@@ -169,7 +169,7 @@ db.reviews.replaceOne(
         _id: probeId,
         movieId: NumberLong("6"),
         movieTitle: "Мої думки тихі",
-        author: { displayName: "Тест гнучкості" },
+        reviewer: { displayName: "Тест гнучкості" },
         rating: NumberInt(4),
         createdAt: new Date(),
         videoReviewUrl: "review-6.mp4",           // поля немає в жодному валідаторі

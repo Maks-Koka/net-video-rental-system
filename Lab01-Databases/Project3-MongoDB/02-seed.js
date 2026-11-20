@@ -6,9 +6,9 @@
    з детермінованим _id, тому повторний запуск НЕ створює дублікатів.
    -----------------------------------------------------------------------------
    Документи свідомо мають РІЗНІ набори полів в одній колекції:
-     reviews #1 — повний «гібрид»: вбудований режисер + коментарі + посилання
+     reviews #1 — повний «гібрид»: вбудований автор + коментарі + посилання
      reviews #2 — з масивом photos і tags (у #1 їх немає)
-     reviews #3 — анонімний: немає author.customerId, немає comments
+     reviews #3 — анонімний: немає reviewer.customerId, немає comments
      reviews #4 — зі вкладеним об'єктом ratings (детальні оцінки) замість тексту
    ============================================================================= */
 
@@ -34,9 +34,9 @@ db.discussions.replaceOne(
         createdAt: new Date("2026-09-10T09:00:00Z"),
         lastActivityAt: new Date("2026-11-18T14:30:00Z"),
         messages: [                               // вбудований масив повідомлень
-            { author: "Олена",  text: "Класика, яку варто переглядати дорослим.", postedAt: new Date("2026-09-10T09:05:00Z"), replyTo: null },
-            { author: "Андрій", text: "У школі складно, але з хорошим учителем — так.", postedAt: new Date("2026-09-11T10:20:00Z"), replyTo: 0 },
-            { author: "Марія",  text: "Погоджуюсь, контекст важливіший за заучування.", postedAt: new Date("2026-11-18T14:30:00Z"), replyTo: 1 }
+            { reviewer: "Олена",  text: "Класика, яку варто переглядати дорослим.", postedAt: new Date("2026-09-10T09:05:00Z"), replyTo: null },
+            { reviewer: "Андрій", text: "У школі складно, але з хорошим учителем — так.", postedAt: new Date("2026-09-11T10:20:00Z"), replyTo: 0 },
+            { reviewer: "Марія",  text: "Погоджуюсь, контекст важливіший за заучування.", postedAt: new Date("2026-11-18T14:30:00Z"), replyTo: 1 }
         ]
     },
     { upsert: true }
@@ -54,8 +54,8 @@ db.discussions.replaceOne(
         createdAt: new Date("2026-10-02T12:00:00Z"),
         lastActivityAt: new Date("2026-10-20T18:00:00Z"),
         messages: [
-            { author: "Ігор",   text: "Найсильніше — відсутність пафосу.", postedAt: new Date("2026-10-02T12:10:00Z"), replyTo: null },
-            { author: "Олена",  text: "Саме тому він і болить.",            postedAt: new Date("2026-10-20T18:00:00Z"), replyTo: 0 }
+            { reviewer: "Ігор",   text: "Найсильніше — відсутність пафосу.", postedAt: new Date("2026-10-02T12:10:00Z"), replyTo: null },
+            { reviewer: "Олена",  text: "Саме тому він і болить.",            postedAt: new Date("2026-10-20T18:00:00Z"), replyTo: 0 }
         ]
     },
     { upsert: true }
@@ -66,22 +66,22 @@ print(`  discussions: ${db.discussions.countDocuments()} документів`);
    reviews — ГОЛОВНА демонстрація: embedding + referencing + гібрид + гнучка схема
    ============================================================================= */
 
-/* --- #1 ГІБРИД: вбудований режисер, вбудовані коментарі ТА посилання на дискусію --- */
+/* --- #1 ГІБРИД: вбудований автор, вбудовані коментарі ТА посилання на дискусію --- */
 db.reviews.replaceOne(
     { _id: ObjectId("66f0c20000000000000000b1") },
     {
         _id: ObjectId("66f0c20000000000000000b1"),
         movieId: NumberLong("1"),                    // посилання на Каталог (без FK)
         movieTitle: "Тіні забутих предків",                      // ДЕНОРМАЛІЗОВАНО для читання
-        author: {                                 // ВБУДОВАНИЙ об'єкт
+        reviewer: {                                 // ВБУДОВАНИЙ об'єкт
             customerId: NumberLong("1"),              // логічне посилання на Customers.Id
             displayName: "Олена К."
         },
         rating: NumberInt(5),
         text: "Реставрована версія з якісним звуком — дивитися набагато приємніше.",
         comments: [                               // ВБУДОВАНИЙ масив
-            { author: "Андрій", text: "Згоден, реставрація врятувала.", createdAt: new Date("2026-09-15T08:00:00Z"), likes: NumberInt(3) },
-            { author: "Марія",  text: "А яка саме версія?",          createdAt: new Date("2026-09-16T09:30:00Z"), likes: NumberInt(0) }
+            { reviewer: "Андрій", text: "Згоден, реставрація врятувала.", createdAt: new Date("2026-09-15T08:00:00Z"), likes: NumberInt(3) },
+            { reviewer: "Марія",  text: "А яка саме версія?",          createdAt: new Date("2026-09-16T09:30:00Z"), likes: NumberInt(0) }
         ],
         discussionId: DISC_KOBZAR,                // ПОСИЛАННЯ на окрему колекцію
         createdAt: new Date("2026-09-14T07:45:00Z")
@@ -96,13 +96,13 @@ db.reviews.replaceOne(
         _id: ObjectId("66f0c20000000000000000b2"),
         movieId: NumberLong("4"),
         movieTitle: "Поводир",
-        author: { customerId: NumberLong("2"), displayName: "Андрій Ш." },
+        reviewer: { customerId: NumberLong("2"), displayName: "Андрій Ш." },
         rating: NumberInt(5),
         text: "Подивився за один вечір. Мова суха і від цього ще сильніша.",
         photos: ["internat-cover.jpg", "internat-page-77.jpg"],   // поле лише тут
         tags: ["війна", "сучасна проза", "мушрід"],                // поле лише тут
         comments: [
-            { author: "Ігор", text: "Варто дивитися разом із «Довбушем».", createdAt: new Date("2026-11-02T11:00:00Z"), likes: NumberInt(5) }
+            { reviewer: "Ігор", text: "Варто дивитися разом із «Довбушем».", createdAt: new Date("2026-11-02T11:00:00Z"), likes: NumberInt(5) }
         ],
         discussionId: DISC_INTERNAT,
         createdAt: new Date("2026-11-01T19:20:00Z")
@@ -110,14 +110,14 @@ db.reviews.replaceOne(
     { upsert: true }
 );
 
-/* --- #3 АНОНІМНИЙ: немає author.customerId, немає comments, немає discussionId --- */
+/* --- #3 АНОНІМНИЙ: немає reviewer.customerId, немає comments, немає discussionId --- */
 db.reviews.replaceOne(
     { _id: ObjectId("66f0c20000000000000000b3") },
     {
         _id: ObjectId("66f0c20000000000000000b3"),
         movieId: NumberLong("2"),
         movieTitle: "Земля",
-        author: { displayName: "Анонім" },        // customerId ВІДСУТНІЙ
+        reviewer: { displayName: "Анонім" },        // customerId ВІДСУТНІЙ
         rating: NumberInt(4),
         text: "Динамічно, але фінал надто швидкий.",
         createdAt: new Date("2026-10-05T16:00:00Z")
@@ -132,7 +132,7 @@ db.reviews.replaceOne(
         _id: ObjectId("66f0c20000000000000000b4"),
         movieId: NumberLong("5"),
         movieTitle: "Кіборги",
-        author: { customerId: NumberLong("3"), displayName: "Марія Б." },
+        reviewer: { customerId: NumberLong("3"), displayName: "Марія Б." },
         rating: NumberInt(4),
         ratings: {                                // ВКЛАДЕНИЙ ОБ'ЄКТ — складний агрегат
             plot: NumberInt(5),
@@ -158,7 +158,7 @@ db.reviews.replaceOne(
         _id: ObjectId("66f0c20000000000000000b5"),
         movieId: NumberLong("3"),
         movieTitle: "Пропала грамота",
-        author: { displayName: "Клієнт без профілю" },
+        reviewer: { displayName: "Клієнт без профілю" },
         rating: NumberInt(3),
         createdAt: new Date("2026-11-17T10:00:00Z")
     },

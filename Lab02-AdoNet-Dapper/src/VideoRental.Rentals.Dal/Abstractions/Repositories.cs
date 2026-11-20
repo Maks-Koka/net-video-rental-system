@@ -55,7 +55,7 @@ public interface IRentalRepository : IGenericRepository<Rental>
     /// <summary><c>usp_ReturnRental</c>: → <c>Returned</c>, повертає нараховану пеню.</summary>
     Task<decimal> ReturnAsync(long rentalId, DateTime? returnDate, string? changedBy, CancellationToken ct = default);
 
-    /// <summary><c>usp_CancelRental</c>: → <c>Cancelled</c> (лише до видачі дисків).</summary>
+    /// <summary><c>usp_CancelRental</c>: → <c>Cancelled</c> (лише до оренди дисків).</summary>
     Task CancelAsync(long rentalId, string? reason, string? changedBy, CancellationToken ct = default);
 
     /// <summary><c>usp_GetCustomerRentalSummary</c>: звіт по орендах клієнта.</summary>

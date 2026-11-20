@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VideoRental.Reviews.Application/VideoRental.Reviews.Application.csproj" />
+    <Project Path="src/VideoRental.Reviews.Domain/VideoRental.Reviews.Domain.csproj" />
+    <Project Path="src/VideoRental.Reviews.Infrastructure/VideoRental.Reviews.Infrastructure.csproj" />
+    <Project Path="src/VideoRental.Reviews.WebApi/VideoRental.Reviews.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VideoRental.Reviews.Tests/VideoRental.Reviews.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VideoRental.Rentals.Bll\VideoRental.Rentals.Bll.csproj" />
+    <ProjectReference Include="..\..\..\Lab05-Aspire-Platform\src\VideoRental.Platform.ServiceDefaults\VideoRental.Platform.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

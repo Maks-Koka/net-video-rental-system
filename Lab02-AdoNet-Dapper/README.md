@@ -98,7 +98,7 @@ $env:ConnectionStrings__RentalsDb = "Server=localhost,1433;Database=VideoRentalR
 
 | Репозиторій | Технологія | Успадковує Generic Repository | Що демонструє |
 |---|---|---|---|
-[`CustomerRepository`](src/VideoRental.Rentals.Dal/Repositories/CustomerRepository.cs) | **чистий ADO.NET** | **НІ — свідомо** | `SqlConnection` / `SqlCommand` / `SqlParameter` / `SqlDataReader`, ручний мапінг рядків, явні `SqlDbType` |
+[`CustomerRepository`](src/VideoRental.Rentals.Dal/Repositories/CustomerRepository.cs) | **чистий ADO.NET** | **НІ — свідомо** | `SqlConnection` / `SqlCommand` / `SqlParameter` / `SqlDataCustomer`, ручний мапінг рядків, явні `SqlDbType` |
 | [`RentalRepository`](src/VideoRental.Rentals.Dal/Repositories/RentalRepository.cs) | ADO.NET + **Dapper** | так | **multi-mapping** (оренда + деталі + позиції одним запитом), виклики збережуваних процедур, OUTPUT-параметри |
 | [`MovieRepository`](src/VideoRental.Rentals.Dal/Repositories/MovieRepository.cs) | ADO.NET + **Dapper** | так | процедура `usp_DecreaseMovieDiscs`, `MERGE` для синхронізації копії довідника |
 | [`LateFeePaymentRepository`](src/VideoRental.Rentals.Dal/Repositories/LateFeePaymentRepository.cs) | ADO.NET + **Dapper** | так | агрегатний запит (`SUM` рахує БД), пошук за токеном ідемпотентності |

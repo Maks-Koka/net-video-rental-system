@@ -313,7 +313,7 @@ erDiagram
 |---|---|---|---|
 | **1:1** | `Movies` ↔ `MovieDetails` | `MovieDetails.MovieId` (PK=FK) | `HasOne(b => b.Detail).WithOne().HasForeignKey<MovieDetail>(d => d.MovieId)` |
 | **1:N** | `Directors` → `Movies` | `Movies.DirectorId` | `HasOne(b => b.Director).WithMany(a => a.Movies).HasForeignKey(b => b.DirectorId)` |
-| **1:N** | `Movies` → `DiscCopies` | `DiscCopies.MovieId` | `HasMany(b => b.Discs).WithOne().HasForeignKey(c => c.MovieId).OnDelete(Cascade)` |
+| **1:N** | `Movies` → `DiscDiscs` | `DiscDiscs.MovieId` | `HasMany(b => b.Discs).WithOne().HasForeignKey(c => c.MovieId).OnDelete(Cascade)` |
 | **M:N** | `Movies` ↔ `Genres` | проміжна `MovieGenres` | `HasKey(bg => new { bg.MovieId, bg.GenreId })` + два `HasOne().WithMany()` |
 
 **Чому M:N описано явною сутністю, а не автоматичним M:N EF Core:** проміжна
@@ -332,8 +332,8 @@ FK і зберегти ці поля не дозволив би. Саме зав
 | `IX_Movies_Active` | «наявні в каталозі фільму» | **фільтрований** `WHERE IsDeleted = 0` |
 | `IX_Directors_FullName` | «пошук режисера за прізвищем» | |
 | `UQ_Genres_Name`, `UQ_Genres_Slug` | унікальність жанру; пошук за slug з URL | `UNIQUE` |
-| `UQ_DiscCopies_DiscNumber` | «диск за інвентарним номером» | `UNIQUE` |
-| `IX_DiscCopies_MovieId` | «усі диски фільму зі станом» | `INCLUDE (Condition, Shelf)` |
+| `UQ_DiscDiscs_DiscNumber` | «диск за інвентарним номером» | `UNIQUE` |
+| `IX_DiscDiscs_MovieId` | «усі диски фільму зі станом» | `INCLUDE (Condition, Shelf)` |
 | `IX_MovieGenres_GenreId_AddedAt` | **«нові фільми жанру за період»** — LINQ-запит через проміжну сутність | складений, `AddedAt DESC`, `INCLUDE (MovieId)` |
 
 ### 2.4. DSL для dbdiagram.io — Проєкт №2
@@ -390,7 +390,7 @@ Table MovieDetails {
   CoverUrl nvarchar(500)
 }
 
-Table DiscCopies {
+Table DiscDiscs {
   Id bigint [pk, increment]
   MovieId bigint [not null]
   DiscNumber nvarchar(40) [unique, not null]
@@ -398,7 +398,7 @@ Table DiscCopies {
   Condition nvarchar(20) [not null, default: 'Good']
   AcquiredAt date
   Indexes {
-    MovieId [name: 'IX_DiscCopies_MovieId']
+    MovieId [name: 'IX_DiscDiscs_MovieId']
   }
 }
 
@@ -418,7 +418,7 @@ Ref: Movies.DirectorId > Directors.Id
 // 1:1
 Ref: MovieDetails.MovieId - Movies.Id
 // 1:N
-Ref: DiscCopies.MovieId > Movies.Id
+Ref: DiscDiscs.MovieId > Movies.Id
 // M:N through MovieGenres
 Ref: MovieGenres.MovieId > Movies.Id
 Ref: MovieGenres.GenreId > Genres.Id
@@ -477,7 +477,7 @@ graph TB
 |---|---|---|
 | `ix_reviews_movie_created` `{movieId:1, createdAt:-1}` | «усі відгуки на фільм, найновіші спочатку» | складений |
 | `ix_reviews_movie_rating` `{movieId:1, rating:-1}` | «середній рейтинг і розподіл оцінок» (aggregation) | складений |
-| `ix_reviews_customer` `{"author.customerId":1}` | «усі відгуки клієнта» | **sparse** — `customerId` є не в усіх документах (анонімні відгуки) |
+| `ix_reviews_customer` `{"director.customerId":1}` | «усі відгуки клієнта» | **sparse** — `customerId` є не в усіх документах (анонімні відгуки) |
 | `ix_reviews_fulltext` `{text:"text", movieTitle:"text"}` | повнотекстовий пошук | text |
 | `ix_reviews_with_photos` `{createdAt:-1}` | «відгуки з фото» | **partial** `{photos:{$exists:true}}` |
 | `ix_discussions_movie_open` `{movieId:1, isClosed:1}` | «відкриті обговорення фільму» | складений |

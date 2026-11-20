@@ -72,7 +72,7 @@ public sealed class MovieConfiguration : IEntityTypeConfiguration<Movie>
                .HasForeignKey<MovieDetail>(d => d.MovieId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        // 1:N до DiscCopies. Каскад доречний: диск не існує без фільму.
+        // 1:N до DiscDiscs. Каскад доречний: диск не існує без фільму.
         builder.HasMany(b => b.Discs)
                .WithOne()
                .HasForeignKey(c => c.MovieId)

@@ -110,7 +110,7 @@ public interface IUnitOfWork
     IDirectorRepository Directors { get; }
     IMovieGenreRepository MovieGenres { get; }
     IGenericRepository<Genre> Genres { get; }
-    IGenericRepository<DiscCopy> DiscCopies { get; }
+    IGenericRepository<DiscCopy> DiscDiscs { get; }
 
     /// <summary>Зберігає ВСІ зміни контексту однією транзакцією.</summary>
     Task<int> SaveChangesAsync(CancellationToken ct = default);
