@@ -82,7 +82,7 @@ namespace VideoRental.Catalog.Dal.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DiscDiscs",
+                name: "DiscCopies",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -95,10 +95,10 @@ namespace VideoRental.Catalog.Dal.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DiscDiscs", x => x.Id);
-                    table.CheckConstraint("CK_DiscDiscs_Condition", "[Condition] IN ('New', 'Good', 'Worn', 'Damaged', 'Lost')");
+                    table.PrimaryKey("PK_DiscCopies", x => x.Id);
+                    table.CheckConstraint("CK_DiscCopies_Condition", "[Condition] IN ('New', 'Good', 'Worn', 'Damaged', 'Lost')");
                     table.ForeignKey(
-                        name: "FK_DiscDiscs_Movies_MovieId",
+                        name: "FK_DiscCopies_Movies_MovieId",
                         column: x => x.MovieId,
                         principalTable: "Movies",
                         principalColumn: "Id",
@@ -186,14 +186,14 @@ namespace VideoRental.Catalog.Dal.Migrations
                 column: "FullName");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DiscDiscs_MovieId",
-                table: "DiscDiscs",
+                name: "IX_DiscCopies_MovieId",
+                table: "DiscCopies",
                 column: "MovieId")
                 .Annotation("SqlServer:Include", new[] { "Condition", "Shelf" });
 
             migrationBuilder.CreateIndex(
-                name: "UQ_DiscDiscs_DiscNumber",
-                table: "DiscDiscs",
+                name: "UQ_DiscCopies_DiscNumber",
+                table: "DiscCopies",
                 column: "DiscNumber",
                 unique: true);
 
@@ -239,7 +239,7 @@ namespace VideoRental.Catalog.Dal.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DiscDiscs");
+                name: "DiscCopies");
 
             migrationBuilder.DropTable(
                 name: "MovieDetails");

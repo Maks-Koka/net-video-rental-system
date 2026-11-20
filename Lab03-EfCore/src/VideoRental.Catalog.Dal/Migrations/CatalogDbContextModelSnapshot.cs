@@ -161,16 +161,16 @@ namespace VideoRental.Catalog.Dal.Migrations
 
                     b.HasIndex("DiscNumber")
                         .IsUnique()
-                        .HasDatabaseName("UQ_DiscDiscs_DiscNumber");
+                        .HasDatabaseName("UQ_DiscCopies_DiscNumber");
 
                     b.HasIndex("MovieId")
-                        .HasDatabaseName("IX_DiscDiscs_MovieId");
+                        .HasDatabaseName("IX_DiscCopies_MovieId");
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("MovieId"), new[] { "Condition", "Shelf" });
 
-                    b.ToTable("DiscDiscs", null, t =>
+                    b.ToTable("DiscCopies", null, t =>
                         {
-                            t.HasCheckConstraint("CK_DiscDiscs_Condition", "[Condition] IN ('New', 'Good', 'Worn', 'Damaged', 'Lost')");
+                            t.HasCheckConstraint("CK_DiscCopies_Condition", "[Condition] IN ('New', 'Good', 'Worn', 'Damaged', 'Lost')");
                         });
                 });
 

@@ -33,14 +33,14 @@ public sealed class UnitOfWork : IUnitOfWork
         Directors     = new DirectorRepository(context);
         MovieGenres  = new MovieGenreRepository(context);
         Genres      = new GenericRepository<Genre>(context);
-        DiscDiscs  = new GenericRepository<DiscCopy>(context);
+        DiscCopies  = new GenericRepository<DiscCopy>(context);
     }
 
     public IMovieRepository Movies { get; }
     public IDirectorRepository Directors { get; }
     public IMovieGenreRepository MovieGenres { get; }
     public IGenericRepository<Genre> Genres { get; }
-    public IGenericRepository<DiscCopy> DiscDiscs { get; }
+    public IGenericRepository<DiscCopy> DiscCopies { get; }
 
     public Task<int> SaveChangesAsync(CancellationToken ct = default)
         => _context.SaveChangesAsync(ct);

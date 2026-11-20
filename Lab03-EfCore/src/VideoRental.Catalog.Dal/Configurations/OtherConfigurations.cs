@@ -102,8 +102,8 @@ public sealed class DiscCopyConfiguration : IEntityTypeConfiguration<DiscCopy>
 {
     public void Configure(EntityTypeBuilder<DiscCopy> builder)
     {
-        builder.ToTable("DiscDiscs", t =>
-            t.HasCheckConstraint("CK_DiscDiscs_Condition",
+        builder.ToTable("DiscCopies", t =>
+            t.HasCheckConstraint("CK_DiscCopies_Condition",
                 "[Condition] IN ('New', 'Good', 'Worn', 'Damaged', 'Lost')"));
 
         builder.HasKey(c => c.Id);
@@ -115,11 +115,11 @@ public sealed class DiscCopyConfiguration : IEntityTypeConfiguration<DiscCopy>
         // унікальний інвентарний номер — бізнес-ключ диска
         builder.HasIndex(c => c.DiscNumber)
                .IsUnique()
-               .HasDatabaseName("UQ_DiscDiscs_DiscNumber");
+               .HasDatabaseName("UQ_DiscCopies_DiscNumber");
 
         // індекс під запит: «усі диски фільму зі станом»
         builder.HasIndex(c => c.MovieId)
-               .HasDatabaseName("IX_DiscDiscs_MovieId")
+               .HasDatabaseName("IX_DiscCopies_MovieId")
                .IncludeProperties(c => new { c.Condition, c.Shelf });
     }
 }

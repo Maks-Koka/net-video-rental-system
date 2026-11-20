@@ -124,9 +124,9 @@ LINQ-запит «нові фільми жанру за період».
 
 Міграція створює **6 CHECK-обмежень** (`CK_Movies_DailyRate`,
 `CK_Movies_AvailableDiscs`, `CK_Movies_ReleaseYear`, `CK_Directors_BirthYear`,
-`CK_DiscDiscs_Condition`, `CK_MovieDetails_DurationMinutes`), унікальні індекси
+`CK_DiscCopies_Condition`, `CK_MovieDetails_DurationMinutes`), унікальні індекси
 `UQ_Movies_Barcode`, `UQ_Genres_Name`, `UQ_Genres_Slug`,
-`UQ_DiscDiscs_DiscNumber` та пошукові індекси — кожен із коментарем,
+`UQ_DiscCopies_DiscNumber` та пошукові індекси — кожен із коментарем,
 під який запит його створено (див. [`Configurations/`](src/VideoRental.Catalog.Dal/Configurations/)).
 
 `RowVersion` (`IsRowVersion()`) у `Movie` і `Director` дає **оптимістичну

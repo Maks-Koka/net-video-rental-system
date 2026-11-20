@@ -21,7 +21,7 @@ public class CatalogDbContext : DbContext
     public DbSet<Director> Directors => Set<Director>();
     public DbSet<Genre> Genres => Set<Genre>();
     public DbSet<MovieDetail> MovieDetails => Set<MovieDetail>();
-    public DbSet<DiscCopy> DiscDiscs => Set<DiscCopy>();
+    public DbSet<DiscCopy> DiscCopies => Set<DiscCopy>();
     public DbSet<MovieGenre> MovieGenres => Set<MovieGenre>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

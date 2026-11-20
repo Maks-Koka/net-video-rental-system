@@ -74,16 +74,16 @@ IF NOT EXISTS (
     WHERE [MigrationId] = N'20261120025640_InitialCreate'
 )
 BEGIN
-    CREATE TABLE [DiscDiscs] (
+    CREATE TABLE [DiscCopies] (
         [Id] bigint NOT NULL IDENTITY,
         [MovieId] bigint NOT NULL,
         [DiscNumber] nvarchar(40) NOT NULL,
         [Shelf] nvarchar(40) NULL,
         [Condition] nvarchar(20) NOT NULL DEFAULT N'Good',
         [AcquiredAt] date NULL,
-        CONSTRAINT [PK_DiscDiscs] PRIMARY KEY ([Id]),
-        CONSTRAINT [CK_DiscDiscs_Condition] CHECK ([Condition] IN ('New', 'Good', 'Worn', 'Damaged', 'Lost')),
-        CONSTRAINT [FK_DiscDiscs_Movies_MovieId] FOREIGN KEY ([MovieId]) REFERENCES [Movies] ([Id]) ON DELETE CASCADE
+        CONSTRAINT [PK_DiscCopies] PRIMARY KEY ([Id]),
+        CONSTRAINT [CK_DiscCopies_Condition] CHECK ([Condition] IN ('New', 'Good', 'Worn', 'Damaged', 'Lost')),
+        CONSTRAINT [FK_DiscCopies_Movies_MovieId] FOREIGN KEY ([MovieId]) REFERENCES [Movies] ([Id]) ON DELETE CASCADE
     );
 END;
 
@@ -170,7 +170,7 @@ IF NOT EXISTS (
     WHERE [MigrationId] = N'20261120025640_InitialCreate'
 )
 BEGIN
-    CREATE INDEX [IX_DiscDiscs_MovieId] ON [DiscDiscs] ([MovieId]) INCLUDE ([Condition], [Shelf]);
+    CREATE INDEX [IX_DiscCopies_MovieId] ON [DiscCopies] ([MovieId]) INCLUDE ([Condition], [Shelf]);
 END;
 
 IF NOT EXISTS (
@@ -178,7 +178,7 @@ IF NOT EXISTS (
     WHERE [MigrationId] = N'20261120025640_InitialCreate'
 )
 BEGIN
-    CREATE UNIQUE INDEX [UQ_DiscDiscs_DiscNumber] ON [DiscDiscs] ([DiscNumber]);
+    CREATE UNIQUE INDEX [UQ_DiscCopies_DiscNumber] ON [DiscCopies] ([DiscNumber]);
 END;
 
 IF NOT EXISTS (

@@ -144,7 +144,7 @@ dotnet run --project Lab03-EfCore\src\VideoRental.Catalog.Api --urls http://loca
 | `Movies.Title`, `Director`, `Barcode`, `DailyRate` | Оренда | Каталог | копія для читання — **оновлюється подіями** |
 | `Movies.DiscsAvailable` | Оренда | **Оренда** | власні дані контексту |
 | `reviews.movieTitle` | Відгуки | Каталог | копія для читання — **оновлюється подіями** |
-| `reviews.director.displayName` | Відгуки | Оренда | **знімок** імені на момент публікації |
+| `reviews.reviewer.displayName` | Відгуки | Оренда | **знімок** імені на момент публікації |
 
 Повна таблиця з обґрунтуванням —
 [`Lab01-Databases/Docs/domain-and-contexts.md`](Lab01-Databases/Docs/domain-and-contexts.md).

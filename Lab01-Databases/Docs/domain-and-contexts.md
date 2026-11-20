@@ -19,7 +19,7 @@
 
 | Проєкт | Контекст | Технологія персистентності | Чому саме ця технологія |
 |---|---|---|---|
-| **№1** | **Оренда** (Rentals) | SQL Server + **ADO.NET & Dapper** | Оренда — транзакційний процес (оформлення → підтвердження → оренда дисків → повернення). Потрібні збережувані процедури, явні транзакції, перевірка допустимості переходів статусів і контроль цілісності «на рівні бази». |
+| **№1** | **Оренда** (Rentals) | SQL Server + **ADO.NET & Dapper** | Оренда — транзакційний процес (оформлення → підтвердження → видача дисків → повернення). Потрібні збережувані процедури, явні транзакції, перевірка допустимості переходів статусів і контроль цілісності «на рівні бази». |
 | **№2** | **Каталог** (Catalog) | SQL Server + **EF Core (Code First)** | Каталог — багато сутностей і всі три типи зв'язків (1:1, 1:N, M:N із власним полем). Зручно показати Fluent API, міграції та seed-дані. |
 | **№3** | **Відгуки** (Reviews) | **MongoDB** | Відгуки, коментарі й обговорення мають динамічну структуру: різні клієнти залишають різні набори полів (фото, теги, детальні оцінки, відео-відгук). Природно лягає на документи з піддокументами. |
 
@@ -38,7 +38,7 @@
 - `Directors` — режисери
 - `Movies` — фільми, **власник ідентифікатора фільму в усій системі**
 - `MovieDetails` — опис фільму (1:1)
-- `DiscDiscs` — фізичні диски (1:N)
+- `DiscCopies` — фізичні диски (1:N)
 - `Genres` — жанри
 - `MovieGenres` — проміжна сутність M:N із власним полем `AddedAt`
 
@@ -62,7 +62,7 @@
 |---|---|---|---|
 | Оренда | **Rental** | `Rentals` + `RentalDetails` + `RentalItems` + `RentalStatusHistory` | Позиції не існують без оренди й змінюються лише через неї. Видалення оренди каскадно видаляє позиції, деталі та історію. |
 | Оренда | **Customer** | `Customers` + `LateFeePayments` (через `Rentals`) | Клієнта **не** видаляємо каскадно: історія оренд має зберігатися (soft delete `IsDeleted`). |
-| Каталог | **Movie** | `Movies` + `MovieDetails` + `DiscDiscs` + `MovieGenres` | Опис і диски не існують без фільму (каскад). Жанр — довідник, живе окремо. |
+| Каталог | **Movie** | `Movies` + `MovieDetails` + `DiscCopies` + `MovieGenres` | Опис і диски не існують без фільму (каскад). Жанр — довідник, живе окремо. |
 | Каталог | **Director** | `Directors` | Режисера не можна видалити, поки є його фільми (без каскаду). |
 | Відгуки | **Review** | документ `reviews` + вбудовані `comments[]` | Коментарі живуть разом із відгуком. Довга ветка винесена в `discussions` за посиланням. |
 | Відгуки | **Discussion** | документ `discussions` + `messages[]` | Необмежено зростає, тому окремий документ, а не вбудовування у відгук. |
@@ -80,7 +80,7 @@ VideoRentalCatalogDb.Movies.Id  (ВЛАСНИК ідентифікатора ф�
                    VideoRentalReviewsDb.watchlists.items[].movieId
 
 VideoRentalRentalsDb.Customers.Id  (ВЛАСНИК ідентифікатора клієнта)
-        └─ ─ ─ ►  VideoRentalReviewsDb.reviews.director.customerId
+        └─ ─ ─ ►  VideoRentalReviewsDb.reviews.reviewer.customerId
                    VideoRentalReviewsDb.customerProfiles.customerId
 ```
 
@@ -100,9 +100,9 @@ VideoRentalRentalsDb.Customers.Id  (ВЛАСНИК ідентифікатора 
 |---|---|---|---|---|
 | 1 | `RentalItems.MovieTitle`, `RentalItems.MovieDirector`, `RentalItems.DailyRate` | `VideoRentalRentalsDb` (Проєкт №1) | `Movies` у `VideoRentalCatalogDb` (Проєкт №2) | **Знімок на момент оформлення оренди — свідомо НЕ оновлюється.** Тариф і назва, за якими оформлено оренду, мають залишитися незмінними, навіть якщо каталог їх змінить. Так само `OrderItem` в eShop зберігає `ProductName` і `UnitPrice`. |
 | 2 | `Movies.Title`, `Movies.Director`, `Movies.Barcode`, `Movies.DailyRate` (локальна копія довідника) | `VideoRentalRentalsDb` (Проєкт №1) | `Movies` у `VideoRentalCatalogDb` (Проєкт №2) | **Копія для читання — оновлюється подіями з Каталогу** (`MovieUpdated`, `MoviePriceChanged`). Потрібна, щоб форма оформлення оренди не робила синхронний виклик до Каталогу на кожне читання. Механізм подій — Лаб. 08; до того копія синхронізується `seed`/скриптом (`MERGE` у `seed.sql`). |
-| 3 | `Movies.DiscsAvailable` | `VideoRentalRentalsDb` (Проєкт №1) | **Власник — Проєкт №1** (а не Каталог) | **Не дублювання, а власні дані контексту Оренди.** Залишок доступних для оренди дисків змінюють саме операції оренди/повернення, тому `seed.sql` його не перетирає (`MERGE ... WHEN MATCHED` оновлює все, крім цього поля). `Catalog.Movies.AvailableDiscs` — окреме поле з іншим змістом: скільки дисків узагалі є на балансі. |
+| 3 | `Movies.DiscsAvailable` | `VideoRentalRentalsDb` (Проєкт №1) | **Власник — Проєкт №1** (а не Каталог) | **Не дублювання, а власні дані контексту Оренди.** Залишок доступних для видачі дисків змінюють саме операції оренди/повернення, тому `seed.sql` його не перетирає (`MERGE ... WHEN MATCHED` оновлює все, крім цього поля). `Catalog.Movies.AvailableDiscs` — окреме поле з іншим змістом: скільки дисків узагалі є на балансі. |
 | 4 | `reviews.movieTitle`, `discussions.movieTitle`, `watchlists.items[].movieTitle` | `VideoRentalReviewsDb` (Проєкт №3) | `Movies` у `VideoRentalCatalogDb` (Проєкт №2) | **Копія для читання — оновлюється подіями з Каталогу.** Денормалізація дає змогу показати список відгуків без жодного звернення до Каталогу. |
-| 5 | `reviews.director.displayName`, `watchlists.owner.displayName`, `customerProfiles.displayName` | `VideoRentalReviewsDb` (Проєкт №3) | `Customers` у `VideoRentalRentalsDb` (Проєкт №1) | **Знімок імені на момент публікації — НЕ оновлюється.** Відгук підписаний тим іменем, під яким його опублікували. Відгук може бути й анонімним — тоді `customerId` відсутній узагалі. |
+| 5 | `reviews.reviewer.displayName`, `watchlists.owner.displayName`, `customerProfiles.displayName` | `VideoRentalReviewsDb` (Проєкт №3) | `Customers` у `VideoRentalRentalsDb` (Проєкт №1) | **Знімок імені на момент публікації — НЕ оновлюється.** Відгук підписаний тим іменем, під яким його опублікували. Відгук може бути й анонімним — тоді `customerId` відсутній узагалі. |
 | 6 | `RentalStatusHistory.ToStatus` | `VideoRentalRentalsDb` | **Власні дані контексту** | Не дублювання: журнал подій агрегату Rental. |
 
 ### Чому дублювання допустиме і що ми втрачаємо
@@ -161,7 +161,7 @@ VideoRentalRentalsDb.Customers.Id  (ВЛАСНИК ідентифікатора 
 Submitted ──► AwaitingValidation ──► DiscsConfirmed ──► PickedUp ──► Returned
     │                 │                     │
     └─────────────────┴─────────────────────┴──────► Cancelled
-                                                     (лише ДО оренди дисків)
+                                                     (лише ДО видачі дисків)
 ```
 
 | Перехід | Процедура | Відмова, якщо |
@@ -180,7 +180,7 @@ Submitted ──► AwaitingValidation ──► DiscsConfirmed ──► Picked
 |---|---|
 | Три самостійні бази, кожна для свого контексту | `VideoRentalRentalsDb`, `VideoRentalCatalogDb`, `VideoRentalReviewsDb` |
 | Жодного FK між базами | `verify.sql` блок 1 |
-| 1:1, 1:N, M:N у кожній SQL-базі | Проєкт №1: `RentalDetails` / `Customers→Rentals` / `RentalItems`; Проєкт №2: `MovieDetails` / `Directors→Movies`, `Movies→DiscDiscs` / `MovieGenres` |
+| 1:1, 1:N, M:N у кожній SQL-базі | Проєкт №1: `RentalDetails` / `Customers→Rentals` / `RentalItems`; Проєкт №2: `MovieDetails` / `Directors→Movies`, `Movies→DiscCopies` / `MovieGenres` |
 | M:N має проміжну таблицю | `RentalItems`, `MovieGenres` (з власним полем `AddedAt`) |
 | PK, FK, UNIQUE, CHECK, DEFAULT, індекси | `schema.sql` обох проєктів; `verify.sql` блоки 3–4 |
 | Призначення кожного індексу зрозуміле | коментар `-- індекс під запит: «...»` над кожним `CREATE INDEX` |

@@ -13,7 +13,7 @@
    Типи зв'язків:
      1:1  Movies   <-> MovieDetails    (PK залежної таблиці = FK)
      1:N  Directors  -> Movies          (FK на боці «багатьох»)
-     1:N  Movies    -> DiscDiscs
+     1:N  Movies    -> DiscCopies
      M:N  Movies   <-> Genres         (через MovieGenres з власним полем AddedAt)
    Жодного FOREIGN KEY за межі цієї бази.
    ============================================================================= */
@@ -30,7 +30,7 @@ SET ANSI_NULLS ON;
 GO
 
 IF OBJECT_ID('dbo.MovieGenres', 'U')  IS NOT NULL DROP TABLE dbo.MovieGenres;
-IF OBJECT_ID('dbo.DiscDiscs', 'U')  IS NOT NULL DROP TABLE dbo.DiscDiscs;
+IF OBJECT_ID('dbo.DiscCopies', 'U')  IS NOT NULL DROP TABLE dbo.DiscCopies;
 IF OBJECT_ID('dbo.MovieDetails', 'U') IS NOT NULL DROP TABLE dbo.MovieDetails;
 IF OBJECT_ID('dbo.Movies', 'U')       IS NOT NULL DROP TABLE dbo.Movies;
 IF OBJECT_ID('dbo.Genres', 'U')      IS NOT NULL DROP TABLE dbo.Genres;
@@ -126,24 +126,24 @@ CREATE TABLE dbo.MovieDetails
 GO
 
 /* =============================================================================
-   5. DiscDiscs — 1:N до Movies: фізичні диски на полицях.
+   5. DiscCopies — 1:N до Movies: фізичні диски на полицях.
       Каскадне видалення доречне: диск не існує без фільму.
    ============================================================================= */
-CREATE TABLE dbo.DiscDiscs
+CREATE TABLE dbo.DiscCopies
 (
-    Id              BIGINT       IDENTITY(1,1) CONSTRAINT PK_DiscDiscs PRIMARY KEY,
+    Id              BIGINT       IDENTITY(1,1) CONSTRAINT PK_DiscCopies PRIMARY KEY,
     MovieId          BIGINT       NOT NULL
-                    CONSTRAINT FK_DiscDiscs_Movies REFERENCES dbo.Movies (Id) ON DELETE CASCADE,
-    DiscNumber NVARCHAR(40) NOT NULL CONSTRAINT UQ_DiscDiscs_DiscNumber UNIQUE,
+                    CONSTRAINT FK_DiscCopies_Movies REFERENCES dbo.Movies (Id) ON DELETE CASCADE,
+    DiscNumber NVARCHAR(40) NOT NULL CONSTRAINT UQ_DiscCopies_DiscNumber UNIQUE,
     Shelf           NVARCHAR(40) NULL,
-    [Condition]     NVARCHAR(20) NOT NULL CONSTRAINT DF_DiscDiscs_Condition DEFAULT N'Good'
-                    CONSTRAINT CK_DiscDiscs_Condition CHECK ([Condition] IN (N'New', N'Good', N'Worn', N'Damaged', N'Lost')),
+    [Condition]     NVARCHAR(20) NOT NULL CONSTRAINT DF_DiscCopies_Condition DEFAULT N'Good'
+                    CONSTRAINT CK_DiscCopies_Condition CHECK ([Condition] IN (N'New', N'Good', N'Worn', N'Damaged', N'Lost')),
     AcquiredAt      DATE         NULL
 );
 GO
 
 /* індекс під запит: «усі диски фільму з їх станом» */
-CREATE INDEX IX_DiscDiscs_MovieId ON dbo.DiscDiscs (MovieId) INCLUDE ([Condition], Shelf);
+CREATE INDEX IX_DiscCopies_MovieId ON dbo.DiscCopies (MovieId) INCLUDE ([Condition], Shelf);
 GO
 
 /* =============================================================================

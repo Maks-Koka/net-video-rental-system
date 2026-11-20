@@ -148,7 +148,7 @@ section("2. ВАЛІДАЦІЯ через Pipeline Behavior — ДО викли�
 # =============================================================================
 st, body, _ = call("POST", "/api/reviews", {
     "movieId": AUTOTEST_BOOK, "movieTitle": "Автотест", "customerId": AUTOTEST_READER,
-    "directorName": "Автотест", "rating": 10, "text": "rating поза межами"
+    "reviewerName": "Автотест", "rating": 10, "text": "rating поза межами"
 })
 check("rating = 10 -> 400 (ValidationBehavior зупинив до обробника)", st == 400, f"status={st}")
 check("формат ValidationProblemDetails з розбивкою по полях",
@@ -157,7 +157,7 @@ check("формат ValidationProblemDetails з розбивкою по поля
       f"errors={body.get('errors') if isinstance(body, dict) else body}")
 
 st, body, _ = call("POST", "/api/reviews", {
-    "movieId": 0, "movieTitle": "", "customerId": None, "directorName": "", "rating": 3, "text": "x"
+    "movieId": 0, "movieTitle": "", "customerId": None, "reviewerName": "", "rating": 3, "text": "x"
 })
 check("кілька помилок збираються разом -> 400", st == 400, f"status={st}")
 check("повернуто щонайменше 3 поля з помилками",
@@ -195,7 +195,7 @@ section("4. CQRS: команда створення -> 201 Created з рядко
 # =============================================================================
 st, created_id, headers = call("POST", "/api/reviews", {
     "movieId": AUTOTEST_BOOK, "movieTitle": f"Автотест {SUFFIX}", "customerId": AUTOTEST_READER,
-    "directorName": "Автотест Клієнтенко", "rating": 4, "text": "Відгук створено автотестом."
+    "reviewerName": "Автотест Клієнтенко", "rating": 4, "text": "Відгук створено автотестом."
 })
 check("POST /api/reviews -> 201 Created", st == 201, f"status={st} body={created_id}")
 check("є заголовок Location", "Location" in headers, f"headers={list(headers)}")
@@ -213,7 +213,7 @@ section("5. Бізнес-правило: один клієнт — один ві
 # =============================================================================
 st, body, _ = call("POST", "/api/reviews", {
     "movieId": AUTOTEST_BOOK, "movieTitle": f"Автотест {SUFFIX}", "customerId": AUTOTEST_READER,
-    "directorName": "Автотест Клієнтенко", "rating": 5, "text": "Повторний відгук"
+    "reviewerName": "Автотест Клієнтенко", "rating": 5, "text": "Повторний відгук"
 })
 check("повторний відгук того самого клієнта -> 400 або 409, але НЕ 500",
       st in (400, 409), f"status={st} body={body}")
@@ -223,7 +223,7 @@ check("причину пояснено",
 
 st, anon_id, _ = call("POST", "/api/reviews", {
     "movieId": AUTOTEST_BOOK, "movieTitle": f"Автотест {SUFFIX}", "customerId": None,
-    "directorName": "Анонім автотесту", "rating": 3, "text": "Анонімні не обмежуються"
+    "reviewerName": "Анонім автотесту", "rating": 3, "text": "Анонімні не обмежуються"
 })
 check("анонімний відгук на ту саму фільм -> 201 (партіальний індекс їх не ловить)",
       st == 201, f"status={st} body={anon_id}")
@@ -254,7 +254,7 @@ check("документ НЕ змінився після конфлікту", un
 section("7. Вбудовані коментарі та доменні інваріанти")
 # =============================================================================
 st, _, _ = call("POST", f"/api/reviews/{new_id}/comments",
-                {"customerId": None, "directorName": "Коментатор", "text": "Перший коментар"})
+                {"customerId": None, "reviewerName": "Коментатор", "text": "Перший коментар"})
 check("додавання коментаря -> 204", st == 204, f"status={st}")
 
 st, with_comment, _ = call("GET", f"/api/reviews/{new_id}")
@@ -263,7 +263,7 @@ check("коментар зʼявився у вбудованому масиві"
       f"comments={with_comment.get('comments')}")
 
 st, body, _ = call("POST", f"/api/reviews/{new_id}/comments",
-                   {"customerId": None, "directorName": "", "text": ""})
+                   {"customerId": None, "reviewerName": "", "text": ""})
 check("порожній коментар -> 400 (валідатор)", st == 400, f"status={st}")
 
 # =============================================================================
@@ -298,7 +298,7 @@ check("агрегат містить середню оцінку та кільк
       all(k in ratings[0] for k in ("movieId", "averageRating", "reviewsCount", "commentsTotal")),
       f"row={ratings[0] if ratings else '?'}")
 
-st, found, _ = call("GET", "/api/reviews/search?term=примітками")
+st, found, _ = call("GET", "/api/reviews/search?term=звуком")
 check("повнотекстовий пошук через text-індекс -> 200",
       st == 200 and isinstance(found, list), f"status={st} body={found}")
 check("знайдено відгук із цим словом (без стемінгу: шукаємо точну форму)", len(found) >= 1, f"count={len(found)}")
@@ -317,7 +317,7 @@ st, disc_id, _ = call("POST", "/api/discussions", {
 check("POST /api/discussions -> 201", st == 201, f"status={st} body={disc_id}")
 
 st, _, _ = call("POST", f"/api/discussions/{disc_id}/messages",
-                {"customerId": None, "directorName": "Учасник", "text": "Перше повідомлення"})
+                {"customerId": None, "reviewerName": "Учасник", "text": "Перше повідомлення"})
 check("додано повідомлення -> 204", st == 204, f"status={st}")
 
 st, disc, _ = call("GET", f"/api/discussions/{disc_id}")
@@ -335,7 +335,7 @@ st, _, _ = call("POST", f"/api/discussions/{disc_id}/close", {"reason": "авт�
 check("закриття обговорення -> 204", st == 204, f"status={st}")
 
 st, body, _ = call("POST", f"/api/discussions/{disc_id}/messages",
-                   {"customerId": None, "directorName": "Учасник", "text": "Після закриття"})
+                   {"customerId": None, "reviewerName": "Учасник", "text": "Після закриття"})
 check("повідомлення в ЗАКРИТЕ обговорення -> 400 (інваріант сутності)",
       st == 400, f"status={st}")
 

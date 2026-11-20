@@ -94,9 +94,9 @@ WHERE NOT EXISTS (SELECT 1 FROM dbo.MovieDetails d WHERE d.MovieId = v.MovieId);
 GO
 
 /* ---------------------------------------------------------------------------
-   5. DiscDiscs — 1:N (фізичні диски)
+   5. DiscCopies — 1:N (фізичні диски)
    --------------------------------------------------------------------------- */
-INSERT INTO dbo.DiscDiscs (MovieId, DiscNumber, Shelf, [Condition], AcquiredAt)
+INSERT INTO dbo.DiscCopies (MovieId, DiscNumber, Shelf, [Condition], AcquiredAt)
 SELECT v.MovieId, v.DiscNumber, v.Shelf, v.Cond, v.AcquiredAt
 FROM (VALUES
         (1, N'DISC-0001', N'A-01', N'Good',    CAST('2023-02-10' AS DATE)),
@@ -107,7 +107,7 @@ FROM (VALUES
         (5, N'DISC-0006', N'C-01', N'Good',    CAST('2021-06-30' AS DATE)),
         (6, N'DISC-0007', N'C-02', N'Good',    CAST('2024-03-12' AS DATE))
      ) AS v (MovieId, DiscNumber, Shelf, Cond, AcquiredAt)
-WHERE NOT EXISTS (SELECT 1 FROM dbo.DiscDiscs c WHERE c.DiscNumber = v.DiscNumber);
+WHERE NOT EXISTS (SELECT 1 FROM dbo.DiscCopies c WHERE c.DiscNumber = v.DiscNumber);
 GO
 
 /* ---------------------------------------------------------------------------
@@ -138,6 +138,6 @@ SELECT 'Directors' AS [Table], COUNT(*) AS [Rows] FROM dbo.Directors
 UNION ALL SELECT 'Genres',      COUNT(*) FROM dbo.Genres
 UNION ALL SELECT 'Movies',       COUNT(*) FROM dbo.Movies
 UNION ALL SELECT 'MovieDetails', COUNT(*) FROM dbo.MovieDetails
-UNION ALL SELECT 'DiscDiscs',  COUNT(*) FROM dbo.DiscDiscs
+UNION ALL SELECT 'DiscCopies',  COUNT(*) FROM dbo.DiscCopies
 UNION ALL SELECT 'MovieGenres',  COUNT(*) FROM dbo.MovieGenres;
 GO

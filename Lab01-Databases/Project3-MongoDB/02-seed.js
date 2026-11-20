@@ -34,9 +34,9 @@ db.discussions.replaceOne(
         createdAt: new Date("2026-09-10T09:00:00Z"),
         lastActivityAt: new Date("2026-11-18T14:30:00Z"),
         messages: [                               // вбудований масив повідомлень
-            { reviewer: "Олена",  text: "Класика, яку варто переглядати дорослим.", postedAt: new Date("2026-09-10T09:05:00Z"), replyTo: null },
-            { reviewer: "Андрій", text: "У школі складно, але з хорошим учителем — так.", postedAt: new Date("2026-09-11T10:20:00Z"), replyTo: 0 },
-            { reviewer: "Марія",  text: "Погоджуюсь, контекст важливіший за заучування.", postedAt: new Date("2026-11-18T14:30:00Z"), replyTo: 1 }
+            { reviewer: { displayName: "Олена" },  text: "Класика, яку варто переглядати дорослим.", postedAt: new Date("2026-09-10T09:05:00Z"), replyTo: null },
+            { reviewer: { displayName: "Андрій" }, text: "У школі складно, але з хорошим учителем — так.", postedAt: new Date("2026-09-11T10:20:00Z"), replyTo: 0 },
+            { reviewer: { displayName: "Марія" },  text: "Погоджуюсь, контекст важливіший за заучування.", postedAt: new Date("2026-11-18T14:30:00Z"), replyTo: 1 }
         ]
     },
     { upsert: true }
@@ -54,8 +54,8 @@ db.discussions.replaceOne(
         createdAt: new Date("2026-10-02T12:00:00Z"),
         lastActivityAt: new Date("2026-10-20T18:00:00Z"),
         messages: [
-            { reviewer: "Ігор",   text: "Найсильніше — відсутність пафосу.", postedAt: new Date("2026-10-02T12:10:00Z"), replyTo: null },
-            { reviewer: "Олена",  text: "Саме тому він і болить.",            postedAt: new Date("2026-10-20T18:00:00Z"), replyTo: 0 }
+            { reviewer: { displayName: "Ігор" },   text: "Найсильніше — відсутність пафосу.", postedAt: new Date("2026-10-02T12:10:00Z"), replyTo: null },
+            { reviewer: { displayName: "Олена" },  text: "Саме тому він і болить.",            postedAt: new Date("2026-10-20T18:00:00Z"), replyTo: 0 }
         ]
     },
     { upsert: true }
@@ -80,8 +80,8 @@ db.reviews.replaceOne(
         rating: NumberInt(5),
         text: "Реставрована версія з якісним звуком — дивитися набагато приємніше.",
         comments: [                               // ВБУДОВАНИЙ масив
-            { reviewer: "Андрій", text: "Згоден, реставрація врятувала.", createdAt: new Date("2026-09-15T08:00:00Z"), likes: NumberInt(3) },
-            { reviewer: "Марія",  text: "А яка саме версія?",          createdAt: new Date("2026-09-16T09:30:00Z"), likes: NumberInt(0) }
+            { reviewer: { displayName: "Андрій" }, text: "Згоден, реставрація врятувала.", createdAt: new Date("2026-09-15T08:00:00Z"), likes: NumberInt(3) },
+            { reviewer: { displayName: "Марія" },  text: "А яка саме версія?",          createdAt: new Date("2026-09-16T09:30:00Z"), likes: NumberInt(0) }
         ],
         discussionId: DISC_KOBZAR,                // ПОСИЛАННЯ на окрему колекцію
         createdAt: new Date("2026-09-14T07:45:00Z")
@@ -102,7 +102,7 @@ db.reviews.replaceOne(
         photos: ["internat-cover.jpg", "internat-page-77.jpg"],   // поле лише тут
         tags: ["війна", "сучасна проза", "мушрід"],                // поле лише тут
         comments: [
-            { reviewer: "Ігор", text: "Варто дивитися разом із «Довбушем».", createdAt: new Date("2026-11-02T11:00:00Z"), likes: NumberInt(5) }
+            { reviewer: { displayName: "Ігор" }, text: "Варто дивитися разом із «Довбушем».", createdAt: new Date("2026-11-02T11:00:00Z"), likes: NumberInt(5) }
         ],
         discussionId: DISC_INTERNAT,
         createdAt: new Date("2026-11-01T19:20:00Z")
@@ -140,7 +140,7 @@ db.reviews.replaceOne(
             historicalAccuracy: NumberInt(3),
             pacing: NumberInt(4)
         },
-        watchingContext: {                         // другий рівень вкладеності
+        readingContext: {                         // другий рівень вкладеності
             finishedAt: new Date("2026-11-12T00:00:00Z"),
             format: "bluray",
             rewatching: false
@@ -179,7 +179,7 @@ db.watchlists.replaceOne(
         createdAt: new Date("2026-09-20T08:00:00Z"),
         items: [                                  // ВБУДОВАНИЙ масив із денормалізацією
             { movieId: NumberLong("1"), movieTitle: "Тіні забутих предків",     status: "finished", addedAt: new Date("2026-09-20T08:00:00Z"), note: "Переглянути сцену в Карпатах" },
-            { movieId: NumberLong("3"), movieTitle: "Пропала грамота",      status: "watching",  addedAt: new Date("2026-10-01T08:00:00Z") },
+            { movieId: NumberLong("3"), movieTitle: "Пропала грамота",      status: "reading",  addedAt: new Date("2026-10-01T08:00:00Z") },
             { movieId: NumberLong("2"), movieTitle: "Земля",  status: "planned",  addedAt: new Date("2026-10-15T08:00:00Z") }
         ]
     },

@@ -79,7 +79,7 @@ public sealed class RentalsController : ControllerBase
     public async Task<ActionResult<RentalDto>> PickUp(long id, CancellationToken ct)
         => Ok(await _rentals.ConfirmAndPickUpAsync(id, ct));
 
-    /// <summary>Підтверджує наявність дисків без оренди дисків.</summary>
+    /// <summary>Підтверджує наявність дисків без видачі дисків.</summary>
     /// <response code="409">Недопустимий перехід статусу або бракує дисків.</response>
     [HttpPost("{id:long}/confirm")]
     [ProducesResponseType<RentalDto>(StatusCodes.Status200OK)]

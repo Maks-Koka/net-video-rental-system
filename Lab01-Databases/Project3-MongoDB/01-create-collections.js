@@ -74,7 +74,16 @@ db.createCollection("reviews", {
                         bsonType: "object",
                         required: ["reviewer", "text"],
                         properties: {
-                            reviewer:    { bsonType: "string" },
+                            // автор коментаря — такий самий вбудований об'єкт,
+                            // як і автор відгуку (див. Лаб. 04, Value Object Reviewer)
+                            reviewer: {
+                                bsonType: "object",
+                                required: ["displayName"],
+                                properties: {
+                                    customerId:    { bsonType: ["long", "int", "null"] },
+                                    displayName: { bsonType: "string" }
+                                }
+                            },
                             text:      { bsonType: "string" },
                             createdAt: { bsonType: "date" },
                             likes:     { bsonType: "int" }
@@ -85,7 +94,8 @@ db.createCollection("reviews", {
                     bsonType: ["objectId", "null"],
                     description: "ПОСИЛАННЯ на колекцію discussions (необмежено довга ветка)"
                 },
-                createdAt: { bsonType: "date" }
+                createdAt: { bsonType: "date" },
+                version:   { bsonType: "int", description: "оптимістична конкурентність (Лаб. 04)" }
             }
         }
     },
@@ -102,7 +112,7 @@ db.reviews.createIndex({ movieId: 1, rating: -1 }, { name: "ix_reviews_movie_rat
    бо customerId є не в усіх документах (анонімні відгуки) */
 db.reviews.createIndex({ "reviewer.customerId": 1 }, { name: "ix_reviews_customer", sparse: true });
 /* текстовий індекс під запит: «повнотекстовий пошук по відгуках» */
-db.reviews.createIndex({ text: "text", movieTitle: "text" }, { name: "ix_reviews_fulltext", default_language: "russian" });
+db.reviews.createIndex({ text: "text", movieTitle: "text" }, { name: "ix_reviews_fulltext", default_language: "none" });
 /* частковий індекс під запит: «відгуки з фото» (поле є лише в частини документів) */
 db.reviews.createIndex({ createdAt: -1 },
     { name: "ix_reviews_with_photos", partialFilterExpression: { photos: { $exists: true } } });
@@ -130,7 +140,14 @@ db.createCollection("discussions", {
                         bsonType: "object",
                         required: ["reviewer", "text"],
                         properties: {
-                            reviewer:    { bsonType: "string" },
+                            reviewer: {
+                                bsonType: "object",
+                                required: ["displayName"],
+                                properties: {
+                                    customerId:    { bsonType: ["long", "int", "null"] },
+                                    displayName: { bsonType: "string" }
+                                }
+                            },
                             text:      { bsonType: "string" },
                             postedAt:  { bsonType: "date" },
                             replyTo:   { bsonType: ["int", "null"] }
@@ -184,7 +201,7 @@ db.createCollection("watchlists", {
                             movieTitle: { bsonType: "string" },
                             note:      { bsonType: "string" },
                             addedAt:   { bsonType: "date" },
-                            status:    { bsonType: "string", enum: ["planned", "watching", "finished", "dropped"] }
+                            status:    { bsonType: "string", enum: ["planned", "reading", "finished", "dropped"] }
                         }
                     }
                 },

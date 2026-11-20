@@ -39,7 +39,7 @@ db.customerProfiles.find().forEach((doc) => {
 line("2. Embedding: автор і коментарі приходять разом із відгуком (1 запит)");
 printjson(db.reviews.findOne(
     { _id: ObjectId("66f0c20000000000000000b1") },
-    { movieTitle: 1, "reviewer.displayName": 1, "comments.reviewer": 1, "comments.text": 1 }
+    { movieTitle: 1, "reviewer.displayName": 1, "comments.reviewer.displayName": 1, "comments.text": 1 }
 ));
 
 /* =============================================================================
@@ -99,7 +99,7 @@ line("5. Aggregation + $unwind: топ коментаторів за лайка�
 db.reviews.aggregate([
     { $unwind: "$comments" },
     { $group: {
-        _id: "$comments.reviewer",
+        _id: "$comments.reviewer.displayName",
         comments: { $sum: 1 },
         likes: { $sum: { $ifNull: ["$comments.likes", 0] } }
     } },
@@ -124,10 +124,10 @@ db.watchlists.find(
     { _id: 0, title: 1, isPublic: 1, "owner.displayName": 1 }
 ).forEach((d) => printjson(d));
 
-line("7b. $elemMatch: позиції підбірки зі статусом 'watching'");
+line("7b. $elemMatch: позиції підбірки зі статусом 'reading'");
 db.watchlists.aggregate([
     { $unwind: "$items" },
-    { $match: { "items.status": "watching" } },
+    { $match: { "items.status": "reading" } },
     { $project: { _id: 0, list: "$title", movie: "$items.movieTitle", status: "$items.status" } }
 ]).forEach((d) => printjson(d));
 

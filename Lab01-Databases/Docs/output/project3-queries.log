@@ -9,7 +9,7 @@
   "Земля"
       поля: _id, createdAt, movieId, movieTitle, rating, reviewer, text
   "Кіборги"
-      поля: _id, comments, createdAt, movieId, movieTitle, rating, ratings, reviewer, watchingContext
+      поля: _id, comments, createdAt, movieId, movieTitle, rating, ratings, readingContext, reviewer
   "Пропала грамота"
       поля: _id, createdAt, movieId, movieTitle, rating, reviewer
 
@@ -25,8 +25,8 @@
     discussionId       присутнє в 2 з 5 документів
     photos             присутнє в 1 з 5 документів
     ratings            присутнє в 1 з 5 документів
+    readingContext     присутнє в 1 з 5 документів
     tags               присутнє в 1 з 5 документів
-    watchingContext    присутнє в 1 з 5 документів
 
 =============================================================
  1b. Гнучка схема в customerProfiles
@@ -46,11 +46,15 @@
   },
   comments: [
     {
-      reviewer: 'Андрій',
+      reviewer: {
+        displayName: 'Андрій'
+      },
       text: 'Згоден, реставрація врятувала.'
     },
     {
-      reviewer: 'Марія',
+      reviewer: {
+        displayName: 'Марія'
+      },
       text: 'А яка саме версія?'
     }
   ]
@@ -169,12 +173,12 @@
 }
 
 =============================================================
- 7b. $elemMatch: позиції підбірки зі статусом 'watching'
+ 7b. $elemMatch: позиції підбірки зі статусом 'reading'
 =============================================================
 {
   list: 'Український кінематограф на зиму',
   movie: 'Пропала грамота',
-  status: 'watching'
+  status: 'reading'
 }
 
 =============================================================
